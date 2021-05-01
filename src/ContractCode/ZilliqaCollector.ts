@@ -55,17 +55,17 @@ procedure TransferFunds(tag: String, amt: Uint128, recipient: ByStr20)
     send msgs
 end
 (* Update staged admin *)
-transition UpdateAdmin(admin: ByStr20, initiator: ByStr20)
-    IsAdmin initiator;
+transition UpdateAdmin(admin: ByStr20)
+    IsAdmin _sender;
     staging_admin = Some {ByStr20} admin;
     stagingcontractadmin := staging_admin
 end
 (* Staged admin can claim the staged admin and become admin *)
-transition ClaimAdmin(initiator: ByStr20)
+transition ClaimAdmin()
     staging_admin <- stagingcontractadmin;
     match staging_admin with
     | Some admin =>
-        is_valid = builtin eq initiator admin;
+        is_valid = builtin eq _sender admin;
         match is_valid with
         | True =>
             contractadmin := admin;
@@ -83,20 +83,20 @@ transition ClaimAdmin(initiator: ByStr20)
     end
 end
 (* add any amount of funds to the contract *)
-transition AddFunds(initiator: ByStr20)
+transition AddFunds()
     accept;
-    e = { _eventname : "Funds deposit "; funder : initiator };
+    e = { _eventname : "Funds deposit "; funder : _sender };
     event e
 end
 (* withdraw funds from the contract *)
-transition DrainContractBalance(amt: Uint128, initiator: ByStr20)
-    IsAdmin initiator;
+transition DrainContractBalance(amt: Uint128)
+    IsAdmin _sender;
     bal <- _balance;
     less_than = builtin lt bal amt;
     match less_than with
     | True => throw
     | False =>
-        TransferFunds addfunds_tag amt initiator
+        TransferFunds addfunds_tag amt _sender
     end
 end
 `;
