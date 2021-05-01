@@ -2,9 +2,9 @@
   "name": "ZilliqaInfraManipulator",
   "version": "1.0.0",
   "description": "",
-  "main": "src/index.ts",
   "scripts": {
-    "getContracts": "ts-node src/getContracts.ts"
+    "getContracts": "ts-node src/getContracts.ts",
+    "collector": "ts-node src/collector.ts"
   },
   "repository": {
     "type": "git",
