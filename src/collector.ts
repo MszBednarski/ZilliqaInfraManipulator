@@ -17,13 +17,19 @@ import { BN } from "@zilliqa-js/zilliqa";
 
 (async () => {
   try {
+    const cur = "zil12n666f9925le2zgewkrxn6u489562thl3gazeg";
     //await deployCollector()
     //give one zil
-    // await addFundsToCollector(
-    //   "zil12n666f9925le2zgewkrxn6u489562thl3gazeg",
+    // await AddFunds(
+    //   cur,
     //   "1"
     // );
-    await getCollectorState("zil12n666f9925le2zgewkrxn6u489562thl3gazeg");
+    const state = await getCollectorState(cur);
+    // drain by cur balance
+    // await DrainContractBalance(cur, state.balance);
+
+    //update admin
+    // await UpdateAdmin(cur, "0x03b39223A540467A53BB044Fb7bFA3f44530135A");
   } catch (e) {
     console.error(e);
   }
@@ -44,15 +50,16 @@ async function deployCollector() {
     ],
     12000
   );
+  return [tx, contract];
 }
 
 async function getCollectorState(a: string) {
   const zil = await getZil();
   const state = await getContractState(zil, a, 2);
-  console.log(state);
+  return state;
 }
 
-async function addFundsToCollector(a: string, zils: string) {
+async function AddFunds(a: string, zils: string) {
   const zil = await getZil();
   const tx = await callContract(
     zil,
@@ -62,4 +69,31 @@ async function addFundsToCollector(a: string, zils: string) {
     units.toQa(new BN(zils), units.Units.Zil),
     10000
   );
+  return tx;
+}
+
+async function UpdateAdmin(a: string, newAdmin: string) {
+  const zil = await getZil();
+  const tx = await callContract(
+    zil,
+    a,
+    "UpdateAdmin",
+    [createValParam("ByStr20", "admin", newAdmin)],
+    new BN(0),
+    10000
+  );
+  return tx;
+}
+
+async function DrainContractBalance(a: string, inQa: BN) {
+  const zil = await getZil();
+  const tx = await callContract(
+    zil,
+    a,
+    "DrainContractBalance",
+    [createValParam("Uint128", "amt", inQa.toString())],
+    new BN(0),
+    10000
+  );
+  return tx;
 }

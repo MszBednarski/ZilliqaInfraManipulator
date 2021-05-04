@@ -21,8 +21,6 @@ export async function getZil() {
   );
   console.log(`ADDRESS: ${defaultAddress}`);
   console.log(`ACCOUNT BALANCE: ${b.toString()}`);
-  console.log("\n");
   logColor(`::: NETWORK => ${CUR_NETWORK} !!!!`);
-  console.log("\n");
   return zil;
 }

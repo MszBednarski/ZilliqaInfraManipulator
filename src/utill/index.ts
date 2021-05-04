@@ -42,7 +42,7 @@ export async function deploy(
     1000,
     false
   );
-  printTxLink(tx);
+  logTxLink(tx, "Deploy");
   return [tx, con];
 }
 
@@ -63,7 +63,7 @@ async function retryLoop(
   maxRetries: number,
   intervalMs: number,
   func: () => Promise<RPCResponse<Value[], any>>
-): Promise<[Value[] | undefined, any]> {
+): Promise<[unknown, any]> {
   let err = {};
   for (let x = 0; x < maxRetries; x++) {
     await sleep(x * intervalMs);
@@ -89,7 +89,7 @@ export async function getContractState(
   a: string,
   maxRetries = 6,
   intervalMs = 750
-): Promise<{ state: Value[]; balance: BN }> {
+): Promise<{ state: Value[]; balance: BN; mutableState: unknown }> {
   const address = formatAddress(a);
   const err = (s: string, e: string) =>
     new Error(`There was an issue getting contract ${s} state, ${e}`);
@@ -99,16 +99,22 @@ export async function getContractState(
   if (!init) {
     throw err("init", JSON.stringify(errInit));
   }
-  const [state, errState] = await retryLoop(maxRetries, intervalMs, () =>
+  const [state, errState] = ((await retryLoop(maxRetries, intervalMs, () =>
     zil.blockchain.getSmartContractState(address)
-  );
+  )) as unknown) as [{ _balance: string; [key: string]: unknown }, any];
   if (!state) {
     throw err("mutable", JSON.stringify(errState));
   }
-  const bal = await zil.blockchain.getBalance(address);
-  const balance = new BN(bal.result.balance);
+  const balance = new BN(state._balance);
   logBalance(balance);
-  return { state: [...init, ...state], balance };
+  logState(init as {});
+  logState(state as {});
+  return { state: init as Value[], balance, mutableState: state };
+}
+
+function logState(v: {}) {
+  const color = "\x1b[33m%s\x1b[0m";
+  console.log(color, JSON.stringify(v, null, 4));
 }
 
 function logBalance(inQa: BN) {
@@ -157,12 +163,13 @@ export async function callContract(
     1000,
     false
   );
-  printTxLink(tx);
+  logTxLink(tx, transition);
   return tx;
 }
 
-function printTxLink(t: Transaction) {
+function logTxLink(t: Transaction, msg: string) {
   const id = t.id;
   const url = `https://viewblock.io/zilliqa/tx/0x${id}?network=${getNetworkName()}`;
+  console.log("\x1b[36m%s\x1b[0m", msg);
   console.log("\x1b[36m%s\x1b[0m", url);
 }

@@ -11,7 +11,7 @@ export namespace Types {
       | Int<Bits>
       | Uint<Bits>
       | ByStr<ByStrLength>
-      | string
+      | String
       | BNum;
     export type Algebraic =
       | Bool
