@@ -1,39 +1,11 @@
 import type { Value, Contract } from "@zilliqa-js/contract";
 import type { Transaction } from "@zilliqa-js/account";
-import type { Zilliqa } from "@zilliqa-js/zilliqa";
+import { units, Zilliqa } from "@zilliqa-js/zilliqa";
 import { BN, Long, validation } from "@zilliqa-js/zilliqa";
 import { fromBech32Address } from "@zilliqa-js/crypto";
 import type { RPCResponse } from "@zilliqa-js/core";
-import { getVersion } from "./config";
-
-export namespace Types {
-  type Bits = "32" | "64" | "128" | "256";
-  type ByStrLength = "20" | "30" | "";
-  export type String = "String";
-  export type Bool = "Bool";
-  export type BNum = "BNum";
-  export type Int<X extends Bits> = `Int${X}`;
-  export type Uint<X extends Bits> = `Uint${X}`;
-  export type ByStr<X extends ByStrLength> = `ByStr${X}`;
-  export type Primitive =
-    | Int<Bits>
-    | Uint<Bits>
-    | ByStr<ByStrLength>
-    | string
-    | BNum;
-  export type Algebraic =
-    | Bool
-    | ScillaList<any>
-    | ScillaMap<any, any>
-    | Pair<any, any>;
-  export type ScillaList<V extends All> = `List (${V})`;
-  export type ScillaMap<
-    K extends Primitive,
-    V extends All
-  > = `Map (${K}) (${V})`;
-  export type Pair<V1 extends All, V2 extends All> = `Pair (${V1}) (${V2})`;
-  export type All = Primitive | Algebraic;
-}
+import { getVersion, getNetworkName } from "../config";
+import { Types } from "../types";
 
 export function getParentDir() {
   if (require.main) return require.main.path;
@@ -59,11 +31,7 @@ export async function deploy(
   gasLimit: number
 ): Promise<[Transaction, Contract]> {
   const contract = zil.contracts.new(code, v);
-  const minGas = await zil.blockchain.getMinimumGasPrice();
-  if (!minGas.result) {
-    throw "no gas price";
-  }
-  const gasPrice = new BN(minGas.result);
+  const gasPrice = await getMinGasPrice(zil);
   const [tx, con] = await contract.deploy(
     {
       version: getVersion(),
@@ -74,6 +42,7 @@ export async function deploy(
     1000,
     false
   );
+  printTxLink(tx);
   return [tx, con];
 }
 
@@ -138,5 +107,62 @@ export async function getContractState(
   }
   const bal = await zil.blockchain.getBalance(address);
   const balance = new BN(bal.result.balance);
+  logBalance(balance);
   return { state: [...init, ...state], balance };
+}
+
+function logBalance(inQa: BN) {
+  const color = "\x1b[35m%s\x1b[0m";
+  console.log(
+    color,
+    `In Zil: ${units.fromQa(inQa, units.Units.Zil).toString()}`
+  );
+  console.log(color, `In Li: ${units.fromQa(inQa, units.Units.Li).toString()}`);
+  console.log(color, `In Qa: ${inQa.toString()}`);
+}
+
+export function getContract(zil: Zilliqa, a: string): Contract {
+  const address = formatAddress(a);
+  return zil.contracts.at(address);
+}
+
+export async function getMinGasPrice(zil: Zilliqa) {
+  const minGas = await zil.blockchain.getMinimumGasPrice();
+  if (!minGas.result) {
+    throw "no gas price";
+  }
+  return new BN(minGas.result);
+}
+
+export async function callContract(
+  zil: Zilliqa,
+  a: string,
+  transition: string,
+  args: Value[],
+  amount: BN,
+  gasLimit: number
+): Promise<Transaction> {
+  const contract = getContract(zil, a);
+  const gasPrice = await getMinGasPrice(zil);
+  const tx = await contract.call(
+    transition,
+    args,
+    {
+      version: getVersion(),
+      amount: amount,
+      gasPrice: gasPrice,
+      gasLimit: Long.fromNumber(gasLimit),
+    },
+    33,
+    1000,
+    false
+  );
+  printTxLink(tx);
+  return tx;
+}
+
+function printTxLink(t: Transaction) {
+  const id = t.id;
+  const url = `https://viewblock.io/zilliqa/tx/0x${id}?network=${getNetworkName()}`;
+  console.log("\x1b[36m%s\x1b[0m", url);
 }

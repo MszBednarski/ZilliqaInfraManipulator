@@ -3,9 +3,11 @@ import { ZilliqaCollector } from "./ContractCode/ZilliqaCollector";
 import {
   createValParam,
   deploy,
-  formatAddress,
+  callContract,
   getContractState,
 } from "./utill";
+import { units } from "@zilliqa-js/util";
+import { BN } from "@zilliqa-js/zilliqa";
 
 /**
  * testnet tx:
@@ -15,6 +17,12 @@ import {
 
 (async () => {
   try {
+    //await deployCollector()
+    //give one zil
+    // await addFundsToCollector(
+    //   "zil12n666f9925le2zgewkrxn6u489562thl3gazeg",
+    //   "1"
+    // );
     await getCollectorState("zil12n666f9925le2zgewkrxn6u489562thl3gazeg");
   } catch (e) {
     console.error(e);
@@ -36,11 +44,22 @@ async function deployCollector() {
     ],
     12000
   );
-  console.log(tx);
 }
 
 async function getCollectorState(a: string) {
   const zil = await getZil();
   const state = await getContractState(zil, a, 2);
   console.log(state);
+}
+
+async function addFundsToCollector(a: string, zils: string) {
+  const zil = await getZil();
+  const tx = await callContract(
+    zil,
+    a,
+    "AddFunds",
+    [],
+    units.toQa(new BN(zils), units.Units.Zil),
+    10000
+  );
 }

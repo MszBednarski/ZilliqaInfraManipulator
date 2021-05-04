@@ -3,7 +3,7 @@ import { bytes } from "@zilliqa-js/util";
 
 type Nets = "TESTNET" | "MAINNET";
 
-export const CUR_NETWORK: Nets = process.env.CUR_NETWORK as unknown as Nets;
+export const CUR_NETWORK: Nets = (process.env.CUR_NETWORK as unknown) as Nets;
 
 const nodes: { [key in Nets]: string } = {
   TESTNET: "https://dev-api.zilliqa.com",
@@ -14,6 +14,15 @@ const version: { [key in Nets]: number } = {
   TESTNET: bytes.pack(333, 1),
   MAINNET: bytes.pack(1, 1),
 };
+
+const networkName: { [key in Nets]: string } = {
+  TESTNET: "testnet",
+  MAINNET: "mainnet",
+};
+
+export function getNetworkName() {
+  return networkName[CUR_NETWORK];
+}
 
 export function getVersion() {
   return version[CUR_NETWORK];
