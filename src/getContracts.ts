@@ -9,6 +9,11 @@ const contracts: Contract[] = [
     name: "ZilliqaCollector",
     path: "out/index.scilla",
   },
+  {
+    repo: "ZilliqaQVoteContracts",
+    name: "QVoteContract",
+    path: "contract/QVoting.scilla",
+  },
 ];
 
 async function getAndSave({ name, path, repo }: Contract) {
