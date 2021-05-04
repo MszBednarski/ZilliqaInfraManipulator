@@ -78,8 +78,10 @@ export async function deploy(
 }
 
 export function formatAddress(a: string) {
-  if (validation.isAddress(a)) {
-    return a.startsWith("zil") && a.length == 42 ? fromBech32Address(a) : a;
+  if (validation.isAddress(a) || validation.isBech32(a)) {
+    const res =
+      a.startsWith("zil") && a.length == 42 ? fromBech32Address(a) : a;
+    return res;
   } else {
     throw "not an address";
   }
@@ -115,10 +117,11 @@ async function retryLoop(
  */
 export async function getContractState(
   zil: Zilliqa,
-  address: string,
+  a: string,
   maxRetries = 6,
   intervalMs = 750
-): Promise<Value[]> {
+): Promise<{ state: Value[]; balance: BN }> {
+  const address = formatAddress(a);
   const err = (s: string, e: string) =>
     new Error(`There was an issue getting contract ${s} state, ${e}`);
   const [init, errInit] = await retryLoop(maxRetries, intervalMs, () =>
@@ -133,5 +136,7 @@ export async function getContractState(
   if (!state) {
     throw err("mutable", JSON.stringify(errState));
   }
-  return [...init, ...state];
+  const bal = await zil.blockchain.getBalance(address);
+  const balance = new BN(bal.result.balance);
+  return { state: [...init, ...state], balance };
 }
