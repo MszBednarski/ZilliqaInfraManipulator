@@ -3,7 +3,7 @@ import { bytes } from "@zilliqa-js/util";
 
 type Nets = "TESTNET" | "MAINNET";
 
-export const CUR_NETWORK: Nets = "TESTNET";
+export const CUR_NETWORK: Nets = process.env.CUR_NETWORK as unknown as Nets;
 
 const nodes: { [key in Nets]: string } = {
   TESTNET: "https://dev-api.zilliqa.com",
