@@ -109,6 +109,7 @@ export async function getContractState(
   logBalance(balance);
   logState(init as {});
   logState(state as {});
+  logContractLink(address, address);
   return { state: init as Value[], balance, mutableState: state };
 }
 
@@ -170,6 +171,14 @@ export async function callContract(
 function logTxLink(t: Transaction, msg: string) {
   const id = t.id;
   const url = `https://viewblock.io/zilliqa/tx/0x${id}?network=${getNetworkName()}`;
-  console.log("\x1b[36m%s\x1b[0m", msg);
-  console.log("\x1b[36m%s\x1b[0m", url);
+  const color = "\x1b[36m%s\x1b[0m";
+  console.log(color, msg);
+  console.log(color, url);
+}
+
+function logContractLink(a: string, msg: string) {
+  const url = `https://viewblock.io/zilliqa/address/${a}?network=${getNetworkName()}&tab=state`;
+  const color = "\x1b[31m%s\x1b[0m";
+  console.log(color, msg);
+  console.log(color, url);
 }

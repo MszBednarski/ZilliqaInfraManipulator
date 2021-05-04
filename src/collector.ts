@@ -30,6 +30,9 @@ import { BN } from "@zilliqa-js/zilliqa";
 
     //update admin
     // await UpdateAdmin(cur, "0x03b39223A540467A53BB044Fb7bFA3f44530135A");
+
+    //claim staged admin
+    // await ClaimAdmin(cur);
   } catch (e) {
     console.error(e);
   }
@@ -79,6 +82,19 @@ async function UpdateAdmin(a: string, newAdmin: string) {
     a,
     "UpdateAdmin",
     [createValParam("ByStr20", "admin", newAdmin)],
+    new BN(0),
+    10000
+  );
+  return tx;
+}
+
+async function ClaimAdmin(a: string) {
+  const zil = await getZil();
+  const tx = await callContract(
+    zil,
+    a,
+    "ClaimAdmin",
+    [],
     new BN(0),
     10000
   );
