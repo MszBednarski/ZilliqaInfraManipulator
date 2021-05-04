@@ -4,7 +4,8 @@
   "description": "",
   "scripts": {
     "getContracts": "ts-node src/getContracts.ts",
-    "collector": "ts-node src/collector.ts"
+    "collector": "ts-node src/collector.ts",
+    "test": "ts-node src/test.ts"
   },
   "repository": {
     "type": "git",
