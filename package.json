@@ -5,7 +5,8 @@
   "scripts": {
     "getContracts": "ts-node src/getContracts.ts",
     "collector": "ts-node src/collector.ts",
-    "test": "ts-node src/test.ts"
+    "test": "ts-node src/test.ts",
+    "qzil": "ts-node src/qzil.ts"
   },
   "repository": {
     "type": "git",

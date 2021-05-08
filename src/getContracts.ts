@@ -14,6 +14,11 @@ const contracts: Contract[] = [
     name: "QVoteContract",
     path: "contract/QVoting.scilla",
   },
+  {
+    repo: "ZilliqaTokenPayment",
+    name: "TokenPayment",
+    path: "out/index.scilla",
+  },
 ];
 
 async function getAndSave({ name, path, repo }: Contract) {
