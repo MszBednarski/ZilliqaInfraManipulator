@@ -7,6 +7,7 @@ type Error =
 | AdminValidationFailed
 | StagingAdminNotExist
 | StagingAdminValidationFailed
+| WrongTokenImplementationAddress
 
 let make_error =
 fun (result: Error) =>
@@ -15,6 +16,7 @@ match result with
 | AdminValidationFailed => Int32 -1
 | StagingAdminNotExist => Int32 -2
 | StagingAdminValidationFailed => Int32 -3
+| WrongTokenImplementationAddress => Int32 -4
 end
 in
 { _exception: "Error"; code: result_code }
@@ -105,6 +107,19 @@ transition DrainContractBalance(amt: Uint128)
     send msgs;
     e = { _eventname: "DrainContractBalance"; to: _sender; amount: amt};
     event e
+end
+(* dummy to be able to send the tokens back to admin *)
+transition TransferSuccessCallBack(sender: ByStr20, recipient: ByStr20, amount: Uint128)
+end
+(* accepts tokens from implementation *)
+transition RecipientAcceptTransfer(sender: ByStr20, recipient: ByStr20, amount: Uint128)
+    is_right_implementation = builtin eq _sender current_impl;
+    match is_right_implementation with
+    | True  =>
+    | False =>
+        e = WrongTokenImplementationAddress;
+        ThrowError e
+    end
 end
 (* send payments to zrc2 compatible *)
 transition Pay(addresses: List ByStr20, amts: List Uint128)
