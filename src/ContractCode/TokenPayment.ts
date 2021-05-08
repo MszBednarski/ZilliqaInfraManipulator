@@ -29,24 +29,41 @@ fun (m : Message) =>
 let e = Nil {Message} in
 Cons {Message} m e
 
+let addfunds_tag = "AddFunds"
+
+(**sfe*)
+let nil_message = Nil {Message}
+let zil_bystr20_uint128 = @list_zip ByStr20 Uint128
+let foldl_bystr20_uint128_pair = @list_foldl (Pair ByStr20 Uint128) (List Message)
+let from_pair_bystr20 = @fst ByStr20 Uint128
+let from_pair_uint128 = @snd ByStr20 Uint128
+
 let create_transfer_messages: ByStr20 -> List ByStr20 -> List Uint128 -> List Message = 
     fun(current_impl: ByStr20) =>
 	fun(addresses: List ByStr20) => 
 	fun(amounts: List Uint128) =>
-        let nil = Nil {Message} in
-		let zip = @list_zip ByStr20 Uint128 in
-    let zipped = zip addresses amounts in
-    let foldleft = @list_foldl (Pair ByStr20 Uint128) (List Message) in
-    let f = @fst ByStr20 Uint128 in 
-    let s = @snd ByStr20 Uint128 in 
+    let zipped = zil_bystr20_uint128 addresses amounts in
     let insert = 
       fun(tail: List Message) => 
       fun(address_amount_pair: Pair ByStr20 Uint128) => 
-        let address = f address_amount_pair in 
-        let amt = s address_amount_pair in 
+        let address = from_pair_bystr20 address_amount_pair in 
+        let amt = from_pair_uint128 address_amount_pair in 
         let head = {_tag: transfer_tag; _recipient: current_impl; _amount: zero; to: address; amount: amt} in
         Cons {Message} head tail
-		in foldleft insert nil zipped
+		in foldl_bystr20_uint128_pair insert nil_message zipped
+
+let create_pay_zil_messages: List ByStr20 -> List Uint128 -> List Message = 
+    fun(addresses: List ByStr20) => 
+    fun(amounts: List Uint128) =>
+    let zipped = zil_bystr20_uint128 addresses amounts in
+    let insert = 
+        fun(tail: List Message) => 
+        fun(address_amount_pair: Pair ByStr20 Uint128) => 
+        let address = from_pair_bystr20 address_amount_pair in 
+        let amt = from_pair_uint128 address_amount_pair in 
+        let head = {_tag: addfunds_tag; _recipient: address; _amount: amt} in
+        Cons {Message} head tail
+        in foldl_bystr20_uint128_pair insert nil_message zipped
 
 contract TokenPayment(
     init_admin: ByStr20,
@@ -99,11 +116,14 @@ transition ClaimAdmin()
         ThrowError e
     end
 end
-(* get back remaining zrc2 tokens *)
+(* get back remaining zrc2 tokens and all zils *)
 transition DrainContractBalance(amt: Uint128)
     IsAdmin _sender;
+    bal <- _balance;
     msg = {_tag: transfer_tag; _recipient: current_impl; _amount: zero; to: _sender; amount: amt};
-    msgs = one_msg msg;
+    one_m = one_msg msg;
+    zil_back = {_tag: addfunds_tag; _recipient: _sender; _amount: bal};
+    msgs = Cons {Message} zil_back one_m;
     send msgs;
     e = { _eventname: "DrainContractBalance"; to: _sender; amount: amt};
     event e
@@ -121,12 +141,26 @@ transition RecipientAcceptTransfer(sender: ByStr20, recipient: ByStr20, amount: 
         ThrowError e
     end
 end
+(* add any amount of funds to the contract *)
+transition AddFunds()
+    accept;
+    e = { _eventname : "Funds deposit "; funder : _sender };
+    event e
+end
 (* send payments to zrc2 compatible *)
 transition Pay(addresses: List ByStr20, amts: List Uint128)
     IsAdmin _sender;
     msgs = create_transfer_messages current_impl addresses amts;
     send msgs;
     e = { _eventname: "Pay"; addresses: addresses; amts: amts};
+    event e
+end
+(* sends zils *)
+transition PayZil(addresses: List ByStr20, amts: List Uint128)
+    IsAdmin _sender;
+    msgs = create_pay_zil_messages addresses amts;
+    send msgs;
+    e = { _eventname: "PayZil"; addresses: addresses; amts: amts};
     event e
 end 
 `;
