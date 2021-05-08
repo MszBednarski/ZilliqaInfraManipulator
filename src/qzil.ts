@@ -20,7 +20,8 @@ import { resolve } from "path";
     const to = "zil1wzshrzzj4f8t7mzgyr0ct474l4v67kvlemwux9";
     // await deployQZIL(acc, 1000000);
     // await Mint(cur, acc, 10);
-    await Transfer(cur, to, 42);
+    //transfer 15 to tokenpay contract
+    // await Transfer(cur, to, 15);
     const state = await getState(cur);
   } catch (e) {
     console.error(e);

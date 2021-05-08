@@ -1,10 +1,15 @@
 import { getZil } from "./zilSetup";
 import { ZilliqaCollector } from "./ContractCode/ZilliqaCollector";
 import {
+  DrainContractBalance,
+  UpdateAdmin,
+  ClaimAdmin,
+  getState
+} from "./_reuse";
+import {
   createValParam,
   deploy,
   callContract,
-  getContractState,
 } from "./utill";
 import { units } from "@zilliqa-js/util";
 import { BN } from "@zilliqa-js/zilliqa";
@@ -24,7 +29,7 @@ import { BN } from "@zilliqa-js/zilliqa";
     //   cur,
     //   "1"
     // );
-    const state = await getCollectorState(cur);
+    const state = await getState(cur);
     // drain by cur balance
     // await DrainContractBalance(cur, state.balance);
 
@@ -56,12 +61,6 @@ async function deployCollector() {
   return [tx, contract];
 }
 
-async function getCollectorState(a: string) {
-  const zil = await getZil();
-  const state = await getContractState(zil, a, 2);
-  return state;
-}
-
 async function AddFunds(a: string, zils: string) {
   const zil = await getZil();
   const tx = await callContract(
@@ -70,45 +69,6 @@ async function AddFunds(a: string, zils: string) {
     "AddFunds",
     [],
     units.toQa(new BN(zils), units.Units.Zil),
-    10000
-  );
-  return tx;
-}
-
-async function UpdateAdmin(a: string, newAdmin: string) {
-  const zil = await getZil();
-  const tx = await callContract(
-    zil,
-    a,
-    "UpdateAdmin",
-    [createValParam("ByStr20", "admin", newAdmin)],
-    new BN(0),
-    10000
-  );
-  return tx;
-}
-
-async function ClaimAdmin(a: string) {
-  const zil = await getZil();
-  const tx = await callContract(
-    zil,
-    a,
-    "ClaimAdmin",
-    [],
-    new BN(0),
-    10000
-  );
-  return tx;
-}
-
-async function DrainContractBalance(a: string, inQa: BN) {
-  const zil = await getZil();
-  const tx = await callContract(
-    zil,
-    a,
-    "DrainContractBalance",
-    [createValParam("Uint128", "amt", inQa.toString())],
-    new BN(0),
     10000
   );
   return tx;

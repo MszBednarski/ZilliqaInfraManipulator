@@ -138,7 +138,7 @@ export async function getMinGasPrice(zil: Zilliqa) {
   if (!minGas.result) {
     throw "no gas price";
   }
-  return new BN(minGas.result);
+  return new BN(minGas.result).mul(new BN(1.2));
 }
 
 export async function callContract(
