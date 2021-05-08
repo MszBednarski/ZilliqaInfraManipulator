@@ -1,13 +1,13 @@
 {
-  "name": "ZilliqaInfraManipulator",
+  "name": "zilliqa-infra-manipulator",
   "version": "1.0.0",
   "description": "",
   "scripts": {
     "getContracts": "ts-node src/getContracts.ts",
-    "collector": "ts-node src/collector.ts",
     "test": "ts-node src/test.ts",
-    "qzil": "ts-node src/qzil.ts",
-    "tokenPayment": "ts-node src/tokenPayment.ts"
+    "collector": "ts-node src/Interfaces/collector.ts",
+    "qzil": "ts-node src/Interfaces/qzil.ts",
+    "tokenPayment": "ts-node src/Interfaces/tokenPayment.ts"
   },
   "repository": {
     "type": "git",

@@ -1,12 +1,12 @@
-import { getZil } from "./zilSetup";
+import { getZil } from "../zilSetup";
 import {
   createValParam,
   deploy,
   callContract,
   formatAddress,
   getParentDir,
-} from "./utill";
-import { getState } from "./_reuse";
+} from "../utill";
+import { getState } from "../_reuse";
 import { units } from "@zilliqa-js/util";
 import { BN } from "@zilliqa-js/zilliqa";
 import { readFileSync } from "fs";

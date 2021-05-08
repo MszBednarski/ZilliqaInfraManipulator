@@ -1,12 +1,12 @@
-import { getZil } from "./zilSetup";
-import { TokenPayment } from "./ContractCode/TokenPayment";
+import { getZil } from "../zilSetup";
+import { TokenPayment } from "../ContractCode/TokenPayment";
 import {
   DrainContractBalance,
   UpdateAdmin,
   ClaimAdmin,
   getState,
-} from "./_reuse";
-import { createValParam, deploy, callContract, formatAddress } from "./utill";
+} from "../_reuse";
+import { createValParam, deploy, callContract, formatAddress } from "../utill";
 import { units } from "@zilliqa-js/util";
 import { BN } from "@zilliqa-js/zilliqa";
 

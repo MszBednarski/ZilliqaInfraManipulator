@@ -1,16 +1,16 @@
-import { getZil } from "./zilSetup";
-import { ZilliqaCollector } from "./ContractCode/ZilliqaCollector";
+import { getZil } from "../zilSetup";
+import { ZilliqaCollector } from "../ContractCode/ZilliqaCollector";
 import {
   DrainContractBalance,
   UpdateAdmin,
   ClaimAdmin,
   getState
-} from "./_reuse";
+} from "../_reuse";
 import {
   createValParam,
   deploy,
   callContract,
-} from "./utill";
+} from "../utill";
 import { units } from "@zilliqa-js/util";
 import { BN } from "@zilliqa-js/zilliqa";
 
