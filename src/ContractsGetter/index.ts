@@ -2,7 +2,6 @@ require("dotenv").config();
 import fs from "fs";
 import { resolve } from "path";
 import { exec } from "child_process";
-import fetch from "node-fetch";
 
 export async function getCode(repo: string, path: string) {
   const url = `https://api.github.com/repos/QVote/${repo}/contents/${path}`;
