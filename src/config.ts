@@ -1,9 +1,10 @@
 require("dotenv").config();
 import { bytes } from "@zilliqa-js/util";
+import type { Zilliqa } from "@zilliqa-js/zilliqa";
 
 type Nets = "TESTNET" | "MAINNET";
 
-export const CUR_NETWORK: Nets = (process.env.CUR_NETWORK as unknown) as Nets;
+export const CUR_NETWORK: Nets = process.env.CUR_NETWORK as unknown as Nets;
 
 const nodes: { [key in Nets]: string } = {
   TESTNET: "https://dev-api.zilliqa.com",
@@ -32,10 +33,29 @@ export function getNode() {
   return nodes[CUR_NETWORK];
 }
 
-export function getPrivateKey() {
+/**
+ * Add PRIV_${CUR_NETWORK}
+ * and any
+ * PRIV_${CUR_NETWORK}_${cur}
+ * in ascending order starting from 1
+ */
+export function getPrivateKeys(zil: Zilliqa) {
   const key = process.env[`PRIV_${CUR_NETWORK}`];
   if (typeof key != "string") {
     throw new Error(`Private Key for ${CUR_NETWORK} not defined`);
   }
-  return key;
+  zil.wallet.addByPrivateKey(key);
+  // add other private keys
+  let cur = 1;
+  while (true) {
+    const nextKey = process.env[`PRIV_${CUR_NETWORK}_${cur}`];
+    if (typeof nextKey != "string") {
+      break;
+    } else {
+      zil.wallet.addByPrivateKey(nextKey);
+    }
+    cur++;
+  }
+  console.log("Loaded:");
+  console.log(Object.keys(zil.wallet.accounts));
 }

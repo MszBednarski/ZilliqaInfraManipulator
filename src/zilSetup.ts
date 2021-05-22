@@ -1,9 +1,9 @@
 import { Zilliqa, BN } from "@zilliqa-js/zilliqa";
 import { units } from "@zilliqa-js/util";
-import { getPrivateKey, getNode, getVersion, CUR_NETWORK } from "./config";
+import { getPrivateKeys, getNode, getVersion, CUR_NETWORK } from "./config";
 
 const zil = new Zilliqa(getNode());
-zil.wallet.addByPrivateKey(getPrivateKey());
+getPrivateKeys(zil)
 export const VERSION = getVersion();
 const color = "\x1b[41m\x1b[5m%s\x1b[0m";
 const logColor = (s: string) => console.log(color, s);
