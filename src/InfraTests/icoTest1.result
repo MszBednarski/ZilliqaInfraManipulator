@@ -1,0 +1,31 @@
+Loaded:
+[
+  '0x03b39223A540467A53BB044Fb7bFA3f44530135A',
+  '0x2F714FAe25321eBd0A6B128Ae47F1054464feaba',
+  '0x6Cd3667Ba79310837e33f0aEcBE13688a6CBCa32'
+]
+ADDRESS: 0x03b39223A540467A53BB044Fb7bFA3f44530135A
+ACCOUNT BALANCE: 4819.55
+::: NETWORK => TESTNET !!!!
+Deploy
+https://viewblock.io/zilliqa/tx/0x8ee62604a00e55c8f22f17d93e587165222e21c89bbc6593b7d8554f3c9ccdbd?network=testnet
+Current block number: 2806234
+Returned Block number: 2806248
+Deploy
+https://viewblock.io/zilliqa/tx/0xce743e72f3cb51750c39db13482c63d95bf4484dbdf515c7977c2c469b396ba2?network=testnet
+Mint
+https://viewblock.io/zilliqa/tx/0xf4ceec6749b0cde5a90c2f13168a49dccd369974fe3c2053e0dc5c42988d3225?network=testnet
+Transfer
+https://viewblock.io/zilliqa/tx/0x41b7a10d3e93f515281ac01a4e09100d6ccb95417b737afb7f5ff5a27c8ac77a?network=testnet
+Buy token with 30 zil => 60 qzil
+https://viewblock.io/zilliqa/tx/0x847e6c57a9edd0a93712bdfd5f28df5889e08dbbb1366f07bc11a5e8b9bc60f3?network=testnet
+Buy token with 70 zil => 140 qzil
+https://viewblock.io/zilliqa/tx/0xe0e86e707235c98032897620439a2e01169162173c23c1a35bec27fcb8925c23?network=testnet
+Buy token with 5 ZIL => should fail insufficient supply of tokens
+https://viewblock.io/zilliqa/tx/0xcab4d37be1b6c097f92456ba8ed4bf995ddbb12ecebe5b4300e1900fec05dc12?network=testnet
+Waiting ... target: 2806248
+Current seconds per tx block is 26
+Current block 2806246
+Current block 2806247
+DrainContractBalance
+https://viewblock.io/zilliqa/tx/0xfd5f744d6fe2754cefb7dddc1f5a5b17da138708f440de07b1aead6bece6c724?network=testnet

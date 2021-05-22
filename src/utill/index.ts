@@ -6,6 +6,35 @@ import { fromBech32Address } from "@zilliqa-js/crypto";
 import type { RPCResponse } from "@zilliqa-js/core";
 import { getVersion, getNetworkName } from "../config";
 import { Types } from "../types";
+import { getZil } from "../zilSetup";
+
+export async function getBlockNumber(secondsToAdd: number): Promise<string> {
+  const curBlockNumber = await getCurrentBlock();
+  const secondsPerTxBlock = await getSecondsPerBlock();
+  const res =
+    "" + (curBlockNumber + Math.round(secondsToAdd / secondsPerTxBlock));
+  console.log(`Current block number: ${curBlockNumber}`);
+  console.log(`Returned Block number: ${res}`);
+  return res;
+}
+
+export async function getCurrentBlock(): Promise<number> {
+  const zil = await getZil();
+  const txblock = await zil.blockchain.getLatestTxBlock();
+  if (typeof txblock.result == "undefined") {
+    throw new Error("Couldn't get tx block");
+  }
+  return parseInt(txblock.result.header.BlockNum);
+}
+
+export async function getSecondsPerBlock(): Promise<number> {
+  const zil = await getZil();
+  const txblockRate = await zil.blockchain.getTxBlockRate();
+  if (typeof txblockRate.result == "undefined") {
+    throw new Error("Couldn't get tx block rate");
+  }
+  return Math.ceil(1 / txblockRate.result);
+}
 
 export function getParentDir() {
   if (require.main) return require.main.path;
@@ -40,7 +69,7 @@ export async function deploy(
     },
     33,
     1000,
-    false
+    true
   );
   logTxLink(tx, "Deploy");
   return [tx, con];
@@ -56,7 +85,7 @@ export function formatAddress(a: string) {
   }
 }
 
-const sleep = async (mil: number) =>
+export const sleep = async (mil: number) =>
   new Promise((res, rej) => setTimeout(res, mil));
 
 async function retryLoop(
@@ -99,9 +128,9 @@ export async function getContractState(
   if (!init) {
     throw err("init", JSON.stringify(errInit));
   }
-  const [state, errState] = ((await retryLoop(maxRetries, intervalMs, () =>
+  const [state, errState] = (await retryLoop(maxRetries, intervalMs, () =>
     zil.blockchain.getSmartContractState(address)
-  )) as unknown) as [{ _balance: string; [key: string]: unknown }, any];
+  )) as unknown as [{ _balance: string; [key: string]: unknown }, any];
   if (!state) {
     throw err("mutable", JSON.stringify(errState));
   }
@@ -138,7 +167,18 @@ export async function getMinGasPrice(zil: Zilliqa) {
   if (!minGas.result) {
     throw "no gas price";
   }
-  return new BN(minGas.result).mul(new BN(1.2));
+  // increase minimum gas price by 30% so we get that first in line
+  // treatment
+  return new BN(minGas.result).mul(new BN(1.3));
+}
+
+export async function confirmTx(
+  tx: Transaction,
+  transition: string
+): Promise<Transaction> {
+  await tx.confirm(tx.hash, 33, 1000);
+  logTxLink(tx, transition);
+  return tx;
 }
 
 export async function callContract(
@@ -147,11 +187,12 @@ export async function callContract(
   transition: string,
   args: Value[],
   amount: BN,
-  gasLimit: number
+  gasLimit: number,
+  withoutConfirm?: boolean
 ): Promise<Transaction> {
   const contract = getContract(zil, a);
   const gasPrice = await getMinGasPrice(zil);
-  const tx = await contract.call(
+  const payload: Parameters<Contract["callWithoutConfirm"]> = [
     transition,
     args,
     {
@@ -160,12 +201,32 @@ export async function callContract(
       gasPrice: gasPrice,
       gasLimit: Long.fromNumber(gasLimit),
     },
-    33,
-    1000,
-    false
-  );
-  logTxLink(tx, transition);
+    true,
+  ];
+  const tx = await contract.callWithoutConfirm(...payload);
+  if (withoutConfirm) {
+    return tx;
+  } else {
+    await confirmTx(tx, transition);
+  }
   return tx;
+}
+
+export async function waitUntilBlock(target: string): Promise<void> {
+  const secondsPerTxBlock = await getSecondsPerBlock();
+  console.log(`Waiting ... target: ${target}`);
+  console.log(`Current seconds per tx block is ${secondsPerTxBlock}`);
+  const targetBNum = parseInt(target);
+  while (true) {
+    const cur = await getCurrentBlock();
+    if (cur < targetBNum) {
+      console.log(`Current block ${cur}`);
+      await sleep(secondsPerTxBlock * 1000);
+      continue;
+    } else {
+      break;
+    }
+  }
 }
 
 function logTxLink(t: Transaction, msg: string) {
