@@ -19,6 +19,11 @@ const contracts: Contract[] = [
     name: "TokenPayment",
     path: "out/index.scilla",
   },
+  {
+    repo: "ZilliqaICOContract",
+    name: "ZilliqaICOContract",
+    path: "out/index.scilla",
+  },
 ];
 
 async function getAndSave({ name, path, repo }: Contract) {
