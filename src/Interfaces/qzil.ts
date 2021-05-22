@@ -6,27 +6,11 @@ import {
   formatAddress,
   getParentDir,
 } from "../utill";
-import { getState } from "../_reuse";
-import { units } from "@zilliqa-js/util";
 import { BN } from "@zilliqa-js/zilliqa";
+import type { Transaction } from "@zilliqa-js/account";
+import type { Contract } from "@zilliqa-js/contract";
 import { readFileSync } from "fs";
 import { resolve } from "path";
-
-(async () => {
-  try {
-    const cur = "zil19q4w6zepthsy9zw5qmm059gyz63uzsp4fyp3js";
-    const acc = "0x03b39223A540467A53BB044Fb7bFA3f44530135A";
-    //token payment contract
-    const to = "zil1wzshrzzj4f8t7mzgyr0ct474l4v67kvlemwux9";
-    // await deployQZIL(acc, 1000000);
-    // await Mint(cur, acc, 10);
-    //transfer 15 to tokenpay contract
-    // await Transfer(cur, to, 15);
-    const state = await getState(cur);
-  } catch (e) {
-    console.error(e);
-  }
-})();
 
 // contract_owner: ByStr20,
 // init_minter: ByStr20,
@@ -36,9 +20,15 @@ import { resolve } from "path";
 // init_supply: Uint128,
 // num_minting_blocks: Uint128
 
-async function deployQZIL(owner: string, initSupply: number) {
+/**
+ * @decimals 12
+ */
+export async function deployQZIL(
+  owner: string,
+  initSupplyQa: BN
+): Promise<[Transaction, Contract]> {
   const code = readFileSync(
-    resolve(getParentDir(), "./Experiments/QZIL.scilla"),
+    resolve(getParentDir(), "../Experiments/QZIL.scilla"),
     "utf-8"
   );
   const zil = await getZil();
@@ -52,11 +42,7 @@ async function deployQZIL(owner: string, initSupply: number) {
       createValParam("String", "name", "QZIL"),
       createValParam("String", "symbol", "QZ"),
       createValParam("Uint32", "decimals", "12"),
-      createValParam(
-        "Uint128",
-        "init_supply",
-        units.toQa(new BN(initSupply), units.Units.Zil).toString()
-      ),
+      createValParam("Uint128", "init_supply", initSupplyQa.toString()),
       createValParam("Uint128", "num_minting_blocks", "10000000"),
     ],
     12000
@@ -64,7 +50,7 @@ async function deployQZIL(owner: string, initSupply: number) {
   return [tx, contract];
 }
 
-async function Mint(a: string, recipient: string, amount: number) {
+export async function Mint(a: string, recipient: string, amount: BN) {
   const zil = await getZil();
   const tx = await callContract(
     zil,
@@ -72,11 +58,7 @@ async function Mint(a: string, recipient: string, amount: number) {
     "Mint",
     [
       createValParam("ByStr20", "recipient", formatAddress(recipient)),
-      createValParam(
-        "Uint128",
-        "amount",
-        units.toQa(new BN(amount), units.Units.Zil).toString()
-      ),
+      createValParam("Uint128", "amount", amount.toString()),
     ],
     new BN(0),
     10000
@@ -84,7 +66,7 @@ async function Mint(a: string, recipient: string, amount: number) {
   return tx;
 }
 
-async function Transfer(a: string, to: string, amount: number) {
+export async function Transfer(a: string, to: string, amount: BN) {
   const zil = await getZil();
   const tx = await callContract(
     zil,
@@ -92,11 +74,7 @@ async function Transfer(a: string, to: string, amount: number) {
     "Transfer",
     [
       createValParam("ByStr20", "to", formatAddress(to)),
-      createValParam(
-        "Uint128",
-        "amount",
-        units.toQa(new BN(amount), units.Units.Zil).toString()
-      ),
+      createValParam("Uint128", "amount", amount.toString()),
     ],
     new BN(0),
     10000
