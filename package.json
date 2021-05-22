@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "getContracts": "ts-node src/getContracts.ts",
+    "getContracts": "ts-node src/getContracts.ts"
   },
   "repository": {
     "type": "git",
