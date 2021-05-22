@@ -56,6 +56,6 @@ export function getPrivateKeys(zil: Zilliqa) {
     }
     cur++;
   }
-  console.log("Loaded:");
-  console.log(Object.keys(zil.wallet.accounts));
+  debug("Loaded:");
+  debug(Object.keys(zil.wallet.accounts));
 }

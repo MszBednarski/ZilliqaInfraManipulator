@@ -8,13 +8,18 @@ import { getVersion, getNetworkName } from "../config";
 import { Types } from "../types";
 import { getZil } from "../zilSetup";
 
+const RED = "\x1B[31m%s\x1b[0m";
+const CYAN = "\x1B[36m%s\x1b[0m";
+const GREEN = "\x1B[32m%s\x1b[0m";
+const MAGENTA = "\x1B[35m%s\x1b[0m";
+
 export async function getBlockNumber(secondsToAdd: number): Promise<string> {
   const curBlockNumber = await getCurrentBlock();
   const secondsPerTxBlock = await getSecondsPerBlock();
   const res =
     "" + (curBlockNumber + Math.round(secondsToAdd / secondsPerTxBlock));
-  console.log(`Current block number: ${curBlockNumber}`);
-  console.log(`Returned Block number: ${res}`);
+  debug(`Current block number: ${curBlockNumber}`);
+  debug(`Returned Block number: ${res}`);
   return res;
 }
 
@@ -69,7 +74,7 @@ export async function deploy(
     },
     33,
     1000,
-    true
+    false
   );
   logTxLink(tx, "Deploy");
   return [tx, con];
@@ -144,17 +149,14 @@ export async function getContractState(
 
 function logState(v: {}) {
   const color = "\x1b[33m%s\x1b[0m";
-  console.log(color, JSON.stringify(v, null, 4));
+  debug(color, JSON.stringify(v, null, 4));
 }
 
 function logBalance(inQa: BN) {
   const color = "\x1b[35m%s\x1b[0m";
-  console.log(
-    color,
-    `In Zil: ${units.fromQa(inQa, units.Units.Zil).toString()}`
-  );
-  console.log(color, `In Li: ${units.fromQa(inQa, units.Units.Li).toString()}`);
-  console.log(color, `In Qa: ${inQa.toString()}`);
+  debug(color, `In Zil: ${units.fromQa(inQa, units.Units.Zil).toString()}`);
+  debug(color, `In Li: ${units.fromQa(inQa, units.Units.Li).toString()}`);
+  debug(color, `In Qa: ${inQa.toString()}`);
 }
 
 export function getContract(zil: Zilliqa, a: string): Contract {
@@ -201,7 +203,7 @@ export async function callContract(
       gasPrice: gasPrice,
       gasLimit: Long.fromNumber(gasLimit),
     },
-    true,
+    false,
   ];
   const tx = await contract.callWithoutConfirm(...payload);
   if (withoutConfirm) {
@@ -214,13 +216,13 @@ export async function callContract(
 
 export async function waitUntilBlock(target: string): Promise<void> {
   const secondsPerTxBlock = await getSecondsPerBlock();
-  console.log(`Waiting ... target: ${target}`);
-  console.log(`Current seconds per tx block is ${secondsPerTxBlock}`);
+  debug(`Waiting ... target: ${target}`);
+  debug(`Current seconds per tx block is ${secondsPerTxBlock}`);
   const targetBNum = parseInt(target);
   while (true) {
     const cur = await getCurrentBlock();
     if (cur < targetBNum) {
-      console.log(`Current block ${cur}`);
+      debug(`Current block ${cur}`);
       await sleep(secondsPerTxBlock * 1000);
       continue;
     } else {
@@ -232,14 +234,25 @@ export async function waitUntilBlock(target: string): Promise<void> {
 function logTxLink(t: Transaction, msg: string) {
   const id = t.id;
   const url = `https://viewblock.io/zilliqa/tx/0x${id}?network=${getNetworkName()}`;
-  const color = "\x1b[36m%s\x1b[0m";
-  console.log(color, msg);
-  console.log(color, url);
+  debug(MAGENTA, msg);
+  const receipt = t.getReceipt();
+  if (receipt) {
+    if (receipt.success) {
+      debug(GREEN, "Success.");
+    } else {
+      debug(RED, "Failed.");
+      if (receipt.errors) {
+        Object.entries(receipt.errors).map(([k, v]) => {
+          debug(RED, v);
+        });
+      }
+    }
+  }
+  debug(CYAN, url);
 }
 
 function logContractLink(a: string, msg: string) {
   const url = `https://viewblock.io/zilliqa/address/${a}?network=${getNetworkName()}&tab=state`;
-  const color = "\x1b[31m%s\x1b[0m";
-  console.log(color, msg);
-  console.log(color, url);
+  debug(RED, msg);
+  debug(RED, url);
 }
