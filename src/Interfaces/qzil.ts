@@ -28,7 +28,7 @@ export async function deployQZIL(
   initSupplyQa: BN
 ): Promise<[Transaction, Contract]> {
   const code = readFileSync(
-    resolve(getParentDir(), "../Experiments/QZIL.scilla"),
+    resolve(getParentDir(), "../../Experiments/QZIL.scilla"),
     "utf-8"
   );
   const zil = await getZil();

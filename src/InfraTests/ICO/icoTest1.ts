@@ -1,10 +1,10 @@
-import { deployQZIL, Transfer, Mint } from "../Interfaces/qzil";
-import { deployICOContract, BuyToken } from "../Interfaces/ico";
+import { deployQZIL, Transfer, Mint } from "../../Interfaces/qzil";
+import { deployICOContract, BuyToken } from "../../Interfaces/ico";
 import { BN } from "@zilliqa-js/zilliqa";
 import { units } from "@zilliqa-js/util";
-import { DrainContractBalance } from "../_reuse";
-import { getZil } from "../zilSetup";
-import { confirmTx, getBlockNumber, waitUntilBlock } from "../utill";
+import { DrainContractBalance } from "../../_reuse";
+import { getZil } from "../../zilSetup";
+import { confirmTx, getBlockNumber, waitUntilBlock } from "../../utill";
 
 (async () => {
   try {

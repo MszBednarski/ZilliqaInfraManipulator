@@ -2,6 +2,7 @@ import { setup } from "./globalSetup";
 setup();
 import { Zilliqa, BN } from "@zilliqa-js/zilliqa";
 import { units } from "@zilliqa-js/util";
+import type { Account } from "@zilliqa-js/account";
 import { getPrivateKeys, getNode, getVersion, CUR_NETWORK } from "./config";
 
 const zil = new Zilliqa(getNode());
@@ -32,4 +33,15 @@ export async function getZil() {
     logColor(`::: NETWORK => ${CUR_NETWORK} !!!!`);
     return zil;
   }
+}
+
+export async function getDefaultAcc(): Promise<Account> {
+  if (!alreadyLogged) {
+    await getZil();
+  }
+  const acc = zil.wallet.defaultAccount;
+  if (!acc) {
+    throw new Error("No default account");
+  }
+  return acc;
 }
