@@ -1,6 +1,7 @@
 require("dotenv").config();
 import { bytes } from "@zilliqa-js/util";
 import type { Zilliqa } from "@zilliqa-js/zilliqa";
+import { debug } from "./Logger";
 
 type Nets = "TESTNET" | "MAINNET";
 

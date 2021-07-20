@@ -1,6 +1,10 @@
 import { Transaction } from "@zilliqa-js/account";
-import { getNetworkName } from "../../config";
+import { getNetworkName } from "../config";
 import { units, BN } from "@zilliqa-js/zilliqa";
+import { Logger } from "./Logger";
+
+export const debug = Logger.log;
+export const flushDebug = Logger.flush;
 
 const RED = "\x1B[31m%s\x1b[0m";
 const CYAN = "\x1B[36m%s\x1b[0m";

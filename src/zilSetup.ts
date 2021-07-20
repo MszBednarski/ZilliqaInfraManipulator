@@ -1,9 +1,8 @@
-import { setup } from "./globalSetup";
-setup();
 import { Zilliqa, BN } from "@zilliqa-js/zilliqa";
 import { units } from "@zilliqa-js/util";
 import type { Account } from "@zilliqa-js/account";
 import { getPrivateKeys, getNode, getVersion, CUR_NETWORK } from "./config";
+import { debug } from "./Logger";
 
 const zil = new Zilliqa(getNode());
 getPrivateKeys(zil);

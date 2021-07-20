@@ -7,15 +7,15 @@ import type { RPCResponse } from "@zilliqa-js/core";
 import { getVersion } from "../config";
 import { Types } from "../types";
 import { getZil } from "../zilSetup";
-import * as log from "./Logger";
+import * as log from "../Logger";
 
 export async function getBlockNumber(secondsToAdd: number): Promise<string> {
   const curBlockNumber = await getCurrentBlock();
   const secondsPerTxBlock = await getSecondsPerBlock();
   const res =
     "" + (curBlockNumber + Math.round(secondsToAdd / secondsPerTxBlock));
-  debug(`Current block number: ${curBlockNumber}`);
-  debug(`Returned Block number: ${res}`);
+  log.debug(`Current block number: ${curBlockNumber}`);
+  log.debug(`Returned Block number: ${res}`);
   return res;
 }
 
@@ -200,13 +200,13 @@ export async function callContract(
 
 export async function waitUntilBlock(target: string): Promise<void> {
   const secondsPerTxBlock = await getSecondsPerBlock();
-  debug(`Waiting ... target: ${target}`);
-  debug(`Current seconds per tx block is ${secondsPerTxBlock}`);
+  log.debug(`Waiting ... target: ${target}`);
+  log.debug(`Current seconds per tx block is ${secondsPerTxBlock}`);
   const targetBNum = parseInt(target);
   while (true) {
     const cur = await getCurrentBlock();
     if (cur < targetBNum) {
-      debug(`Current block ${cur}`);
+      log.debug(`Current block ${cur}`);
       await sleep(secondsPerTxBlock * 1000);
       continue;
     } else {
