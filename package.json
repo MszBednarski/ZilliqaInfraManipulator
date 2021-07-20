@@ -2,9 +2,7 @@
   "name": "zilliqa-infra-manipulator",
   "version": "1.0.0",
   "description": "",
-  "scripts": {
-    "getContracts": "ts-node src/getContracts.ts"
-  },
+  "main": "src/index.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/QVote/ZilliqaInfraManipulator.git"

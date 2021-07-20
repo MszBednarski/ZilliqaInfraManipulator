@@ -1,7 +1,7 @@
 import { format } from "util";
 import { writeFileSync } from "fs";
 import { resolve } from "path";
-import { getParentDir } from "./index";
+import { getParentDir } from "../index";
 
 export class Logger {
   private static buffer = "";

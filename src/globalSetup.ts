@@ -1,4 +1,4 @@
-import { Logger } from "./utill/Logger";
+import { Logger } from "./utill/Logger/Logger";
 
 declare global {
   type Debug = typeof Logger.log;
@@ -23,3 +23,5 @@ export function setup() {
   global.debug = Logger.log;
   global.flushDebug = Logger.flush;
 }
+export const debug = Logger.log;
+export const flushDebug = Logger.flush;

@@ -1,17 +1,13 @@
 import type { Value, Contract } from "@zilliqa-js/contract";
 import type { Transaction } from "@zilliqa-js/account";
-import { units, Zilliqa } from "@zilliqa-js/zilliqa";
+import { Zilliqa } from "@zilliqa-js/zilliqa";
 import { BN, Long, validation } from "@zilliqa-js/zilliqa";
 import { fromBech32Address } from "@zilliqa-js/crypto";
 import type { RPCResponse } from "@zilliqa-js/core";
-import { getVersion, getNetworkName } from "../config";
+import { getVersion } from "../config";
 import { Types } from "../types";
 import { getZil } from "../zilSetup";
-
-const RED = "\x1B[31m%s\x1b[0m";
-const CYAN = "\x1B[36m%s\x1b[0m";
-const GREEN = "\x1B[32m%s\x1b[0m";
-const MAGENTA = "\x1B[35m%s\x1b[0m";
+import * as log from "./Logger";
 
 export async function getBlockNumber(secondsToAdd: number): Promise<string> {
   const curBlockNumber = await getCurrentBlock();
@@ -76,7 +72,7 @@ export async function deploy(
     1000,
     false
   );
-  logTxLink(tx, "Deploy");
+  log.txLink(tx, "Deploy");
   return [tx, con];
 }
 
@@ -140,23 +136,11 @@ export async function getContractState(
     throw err("mutable", JSON.stringify(errState));
   }
   const balance = new BN(state._balance);
-  logBalance(balance);
-  logState(init as {});
-  logState(state as {});
-  logContractLink(address, address);
+  log.balance(balance);
+  log.state(init as {});
+  log.state(state as {});
+  log.contractLink(address, address);
   return { state: init as Value[], balance, mutableState: state };
-}
-
-function logState(v: {}) {
-  const color = "\x1b[33m%s\x1b[0m";
-  debug(color, JSON.stringify(v, null, 4));
-}
-
-function logBalance(inQa: BN) {
-  const color = "\x1b[35m%s\x1b[0m";
-  debug(color, `In Zil: ${units.fromQa(inQa, units.Units.Zil).toString()}`);
-  debug(color, `In Li: ${units.fromQa(inQa, units.Units.Li).toString()}`);
-  debug(color, `In Qa: ${inQa.toString()}`);
 }
 
 export function getContract(zil: Zilliqa, a: string): Contract {
@@ -179,7 +163,7 @@ export async function confirmTx(
   transition: string
 ): Promise<Transaction> {
   await tx.confirm(tx.hash, 33, 1000);
-  logTxLink(tx, transition);
+  log.txLink(tx, transition);
   return tx;
 }
 
@@ -229,30 +213,4 @@ export async function waitUntilBlock(target: string): Promise<void> {
       break;
     }
   }
-}
-
-function logTxLink(t: Transaction, msg: string) {
-  const id = t.id;
-  const url = `https://viewblock.io/zilliqa/tx/0x${id}?network=${getNetworkName()}`;
-  debug(MAGENTA, msg);
-  const receipt = t.getReceipt();
-  if (receipt) {
-    if (receipt.success) {
-      debug(GREEN, "Success.");
-    } else {
-      debug(RED, "Failed.");
-      if (receipt.errors) {
-        Object.entries(receipt.errors).map(([k, v]) => {
-          debug(RED, v);
-        });
-      }
-    }
-  }
-  debug(CYAN, url);
-}
-
-function logContractLink(a: string, msg: string) {
-  const url = `https://viewblock.io/zilliqa/address/${a}?network=${getNetworkName()}&tab=state`;
-  debug(RED, msg);
-  debug(RED, url);
 }
