@@ -1,5 +1,5 @@
 import { resolve } from "path";
-require("dotenv").config({ path: resolve(__dirname, "./.env") });
+require("dotenv").config({ path: resolve(process.cwd(), ".env") });
 import { bytes } from "@zilliqa-js/util";
 import type { Zilliqa } from "@zilliqa-js/zilliqa";
 import { debug } from "./Logger";

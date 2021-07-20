@@ -1,7 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getPrivateKeys = exports.getNode = exports.getVersion = exports.getNetworkName = exports.CUR_NETWORK = void 0;
-require("dotenv").config();
+var path_1 = require("path");
+require("dotenv").config({ path: path_1.resolve(process.cwd(), ".env") });
 var util_1 = require("@zilliqa-js/util");
 var Logger_1 = require("./Logger");
 exports.CUR_NETWORK = process.env.CUR_NETWORK;
